@@ -16,8 +16,8 @@ class OpenIMService {
     try {
       const defaultConfig = {
         platformID: 5, // Web 平台
-        apiAddr: config.apiAddr || 'http://your-server-ip:10002',
-        wsAddr: config.wsAddr || 'ws://your-server-ip:10001',
+        apiAddr: config.apiAddr || 'https://$VITE_BASE_DOMAIN/api',
+        wsAddr: config.wsAddr || 'wss://$VITE_BASE_DOMAIN/msg_gateway',
         logLevel: LogLevel.Error,
         ...config
       }

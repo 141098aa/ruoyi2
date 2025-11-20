@@ -338,8 +338,8 @@ export default {
       try {
         // 从环境变量获取配置
         const config = {
-          apiAddr: process.env.VUE_APP_OPENIM_API_ADDR || 'http://web.pipoone.com:10002',
-          wsAddr: process.env.VUE_APP_OPENIM_WS_ADDR || 'ws://web.pipoone.com:10001',  // 改为 ws://
+          apiAddr: process.env.VUE_APP_OPENIM_API_ADDR || 'https://$VITE_BASE_DOMAIN/api',
+          wsAddr: process.env.VUE_APP_OPENIM_WS_ADDR || 'wss://$VITE_BASE_DOMAIN/msg_gateway',  // 改为 ws://
           platformID: 5,
           logLevel: LogLevel.Error
         }
