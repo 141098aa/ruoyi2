@@ -29,10 +29,10 @@ class OpenIMService {
 
       this.instance = OpenIMSDK
       this.isInitialized = true
-
+      
       // 设置事件监听
       this.setupEventListeners()
-
+      
       return { errCode: 0, errMsg: 'success' }
     } catch (error) {
       console.error('OpenIM SDK 初始化失败:', error)
@@ -57,11 +57,11 @@ class OpenIMService {
       }
 
       const result = await this.instance.login(params)
-
+      
       if (result.errCode === 0) {
         this.isLoggedIn = true
       }
-
+      
       return result
     } catch (error) {
       console.error('OpenIM 登录失败:', error)
@@ -104,12 +104,10 @@ class OpenIMService {
       this.emit('connectFailed', data)
     })
 
-    // 接收新消息（正确）
-    this.instance.on(CbEvents.OnRecvNewMessage, (data) => {
-        console.log("收到新消息:", data);
-        this.emit('newMessage', data);
-    });
-
+    // 接收新消息
+    this.instance.on(CbEvents.OnRecvNewMessages, (data) => {
+      this.emit('newMessages', data)
+    })
 
     // 会话变更
     this.instance.on(CbEvents.OnConversationChanged, (data) => {

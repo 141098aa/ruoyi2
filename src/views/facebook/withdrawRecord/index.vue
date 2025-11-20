@@ -1,9 +1,9 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-      <!-- <el-form-item label="用户ID" prop="userId">
+      <el-form-item label="用户ID" prop="userId">
         <el-input v-model="queryParams.userId" placeholder="请输入用户ID" clearable @keyup.enter.native="handleQuery" />
-      </el-form-item> -->
+      </el-form-item>
       <el-form-item label="fb_ID" prop="fbId">
         <el-input v-model="queryParams.fbId" placeholder="请输入fb_ID" clearable @keyup.enter.native="handleQuery" />
       </el-form-item>
@@ -55,11 +55,10 @@
     <el-table v-loading="loading" :data="withdrawRecordList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="提现记录ID" align="center" prop="id" v-if="true" />
-      <!-- <el-table-column label="用户ID" align="center" prop="userId" /> -->
+      <el-table-column label="用户ID" align="center" prop="userId" />
       <el-table-column label="fb_ID" align="center" prop="fbId" />
       <el-table-column label="用户描述" align="center" prop="userDesc" />
       <el-table-column label="提现金额" align="center" prop="money" />
-      <el-table-column label="实际到账" align="center" prop="actualMoney" />
       <el-table-column label="银行卡/usdt" align="center" width="100">
         <template slot-scope="scope">
           <el-button type="text" @click="handleQueryBankInfo(scope.row)" :loading="scope.row.loading">查询</el-button>
@@ -180,9 +179,9 @@
     <!-- 添加或修改提现记录对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <!-- <el-form-item label="用户ID" prop="userId">
+        <el-form-item label="用户ID" prop="userId">
           <el-input v-model="form.userId" placeholder="请输入用户ID" disabled />
-        </el-form-item> -->
+        </el-form-item>
         <el-form-item label="fb_ID" prop="fbId">
           <el-input v-model="form.fbId" placeholder="请输入fb_ID" disabled />
         </el-form-item>
@@ -272,9 +271,9 @@ export default {
         id: [
           { required: true, message: "提现记录ID不能为空", trigger: "blur" },
         ],
-        // userId: [
-        //   { required: true, message: "用户ID不能为空", trigger: "blur" },
-        // ],
+        userId: [
+          { required: true, message: "用户ID不能为空", trigger: "blur" },
+        ],
         money: [
           { required: true, message: "提现金额不能为空", trigger: "blur" },
         ],

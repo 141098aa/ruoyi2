@@ -27,9 +27,8 @@
             <div class="conversation-info">
               <div class="conversation-name">{{ conversation.showName }}</div>
               <div class="conversation-preview">
-                {{ getMessageText(conversation.latestMsg) || conversation.draftText }}
+                {{ conversation.draftText || conversation.latestMsg }}
               </div>
-
             </div>
             <div class="conversation-meta">
               <div class="conversation-time">
@@ -58,8 +57,8 @@
           </div>
 
           <div class="chat-messages" ref="messagesContainer">
-            <div v-for="message in currentMessages" :key="message.clientMsgID || message.serverMsgID"
-              class="message-item" :class="{
+            <div v-for="message in messages" :key="message.clientMsgID || message.serverMsgID" class="message-item"
+              :class="{
                 'message-sent': message.sendID === currentUserID,
                 'message-received': message.sendID !== currentUserID,
               }">
@@ -117,14 +116,6 @@ export default {
       inputText: '',
       currentUserID: '',
       refreshTimer: null,
-      // IM 收发用
-      im: null,
-      myID: "2244324323",         // 登录后赋值
-      activePeerID: '',   // 当前正在聊天的对方 ID
-      //token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySUQiOiIyMjQ0MzI0MzIzIiwiUGxhdGZvcm1JRCI6NSwiZXhwIjoxNzcxMzI4NjEzLCJpYXQiOjE3NjM1NTI2MDh9.7Iqs1oQCQ2CE44jpp1SZ5KlN_Mu_RQjUiELnJ_BH90M",        // 登录接口返回的 IM token
-      inputMsg: '',
-      sendingText: false,
-
     }
   },
   computed: {
@@ -146,13 +137,6 @@ export default {
     },
     messages() {
       return this.imMessages || []  // 添加 || []
-    },
-    //新增：只显示当前会话的消息
-    currentMessages() {
-      if (!this.currentConversation) return []
-      return this.messages.filter(
-        msg => msg.conversationID === this.currentConversation.conversationID
-      )
     },
     connectionStatusText() {
       const statusMap = {
@@ -176,7 +160,13 @@ export default {
   created() {
     // 使用 OpenIM 的 userID
     this.currentUserID = this.$store.getters.openimUserID || this.id
-    this.initOpenIM()   // 登录成功后自动 bindIMListeners()
+    this.initOpenIM()
+    this.setupEventListeners()
+
+    // 刷新后恢复选中的会话
+    this.$nextTick(() => {
+      this.restoreCurrentConversation()
+    })
   },
   beforeDestroy() {
     this.removeEventListeners()
@@ -196,75 +186,45 @@ export default {
       'UpdateConnectionStatus',
       'UpdateConversation',
     ]),
-    bindIMListeners() {
-      // 防止重复绑定先取消
-      openIMService.off('connectSuccess')
-      openIMService.off('connectFailed')
-      openIMService.off('newMessages')
-      openIMService.off('conversationChanged')
-
-      // 重新绑定监听
-      this.setupEventListeners()
-
-      console.log('🔗 OpenIM 事件监听绑定完成')
-    },
-    getPeerID(conversation) {
-      if (!conversation) return ''
-      return (
-        conversation.recvID ||
-        conversation.showUserID ||
-        (conversation.conversationID
-          ? conversation.conversationID.split('_').pop()
-          : '')
-      )
-    },
     // 获取消息文本内容
     getMessageText(message) {
-      if (!message) return '[空消息]';
+      if (!message) return '[空消息]'
 
-      //  优先处理 SDK 标准 textElem
+      // 优先使用 textElem.content
       if (message.textElem && message.textElem.content) {
-        return message.textElem.content;
+        return message.textElem.content
       }
 
-      //  如果 message.content 是文本
-      if (typeof message.content === 'string' && message.content.trim()) {
-        return message.content;
+      // 尝试其他可能的字段
+      if (message.content) {
+        return message.content
       }
 
-      //  message.text
-      if (typeof message.text === 'string' && message.text.trim()) {
-        return message.text;
+      if (message.text) {
+        return message.text
       }
 
-      //  message.elements 数组（OpenIM 新版 SDK）
-      if (Array.isArray(message.elements)) {
-        const textElems = message.elements.filter(el => el.type === 'TEXT');
-        if (textElems.length) {
-          return textElems.map(el => el.content).join('');
-        }
-      }
-
-      //  如果 message 本身是 JSON 字符串
+      // 如果是 JSON 字符串，尝试解析
       if (typeof message === 'string') {
         try {
-          const parsed = JSON.parse(message);
-          if (parsed.textElem?.content) return parsed.textElem.content;
-          if (parsed.content) return parsed.content;
-          if (Array.isArray(parsed.elements)) {
-            const textElems = parsed.elements.filter(el => el.type === 'TEXT');
-            if (textElems.length) return textElems.map(el => el.content).join('');
+          const parsed = JSON.parse(message)
+          if (parsed.textElem && parsed.textElem.content) {
+            return parsed.textElem.content
+          }
+          if (parsed.content) {
+            return parsed.content
           }
         } catch (e) {
-          // 不是 JSON，直接返回原字符串
-          return message;
+          // 不是 JSON，直接返回
+          return message
         }
+        return message
       }
 
-      console.warn('无法解析消息内容:', message);
-      return '[不支持的消息类型]';
-    }
-    ,
+      // 如果都没有，返回提示
+      console.warn('无法解析消息内容:', message)
+      return '[不支持的消息类型]'
+    },
 
     // 获取用户头像
     getUserAvatar(userID) {
@@ -313,7 +273,6 @@ export default {
 
     // 修改消息接收处理
     setupEventListeners() {
-      // 连接成功/失败
       openIMService.on('connectSuccess', () => {
         this.UpdateConnectionStatus('connected')
         this.$message.success('连接成功')
@@ -324,39 +283,57 @@ export default {
         this.$message.error('连接失败: ' + data.errMsg)
       })
 
-      // 新消息
       openIMService.on('newMessages', (data) => {
+        console.log(' 收到新消息事件，原始数据:', data)
+
+        // 处理不同的数据格式
         let messages = []
-        if (data?.data) {
-          messages = Array.isArray(data.data) ? data.data : [data.data]
+        if (data && data.data) {
+          if (Array.isArray(data.data)) {
+            messages = data.data
+          } else {
+            messages = [data.data]
+          }
         } else if (data) {
           messages = Array.isArray(data) ? data : [data]
         }
 
-        messages.forEach(message => {
-          //  给消息补 conversationID
-          if (!message.conversationID && this.currentConversation) {
-            message.conversationID = this.currentConversation.conversationID
-          }
-          this.AddMessage(message)
-          console.log('收到新消息:', message)
-        })
+        messages.forEach((message) => {
+          const currentConvID = this.currentConversation?.conversationID
 
-        this.$nextTick(() => {
-          this.scrollToBottom()
+          // 补齐 conversationID
+          if (!message.conversationID && this.currentConversation) {
+            if (message.sessionType === 1) {
+              const otherUserID =
+                message.sendID === this.currentUserID ? message.recvID : message.sendID
+              if (
+                otherUserID ===
+                (this.currentConversation.userID ||
+                  this.currentConversation.recvID ||
+                  this.currentConversation.showUserID)
+              ) {
+                message.conversationID = currentConvID
+              }
+            } else if (message.sessionType === 2 && message.groupID === this.currentConversation.groupID) {
+              message.conversationID = currentConvID
+            }
+          }
+
+          if (currentConvID && message.conversationID === currentConvID) {
+            this.AddMessage(message)
+            this.$nextTick(() => this.scrollToBottom())
+          }
         })
       })
 
-      // 会话更新
       openIMService.on('conversationChanged', (data) => {
-        if (data?.data) {
-          data.data.forEach(conversation => {
+        if (data && data.data) {
+          data.data.forEach((conversation) => {
             this.UpdateConversation(conversation)
           })
         }
       })
-    }
-    ,
+    },
     async initOpenIM() {
       try {
         // 从环境变量获取配置
@@ -383,19 +360,87 @@ export default {
           apiAddr: config.apiAddr,
           wsAddr: config.wsAddr
         })
-        this.bindIMListeners()
 
-        // 登录成功后立即获取会话列表
         await this.GetConversationList()
-
-        // 恢复选中会话
-        await this.restoreCurrentConversation()
+        // 获取会话列表后，恢复选中的会话
+        this.$nextTick(() => {
+          this.restoreCurrentConversation()
+        })
         // this.refreshTimer = setInterval(() => {
         //   this.GetConversationList()
         // }, 5000)
       } catch (error) {
         this.$message.error('OpenIM 初始化失败: ' + error.message)
       }
+    },
+    setupEventListeners() {
+      openIMService.on('connectSuccess', () => {
+        this.UpdateConnectionStatus('connected')
+        this.$message.success('连接成功')
+      })
+
+      openIMService.on('connectFailed', (data) => {
+        this.UpdateConnectionStatus('failed')
+        this.$message.error('连接失败: ' + data.errMsg)
+      })
+
+      openIMService.on('newMessages', (data) => {
+
+        // 处理不同的数据格式
+        let messages = []
+        if (data && data.data) {
+          // 如果 data.data 是数组
+          if (Array.isArray(data.data)) {
+            messages = data.data
+          } else {
+            // 如果 data.data 是单个对象，转换为数组
+            messages = [data.data]
+          }
+        } else if (data) {
+          // 如果 data 本身就是消息对象或数组
+          messages = Array.isArray(data) ? data : [data]
+        }
+
+        console.log('解析后的消息列表:', messages)
+
+        messages.forEach((message) => {
+          console.log('处理消息:', message)
+
+          // 获取消息的会话 ID
+          const messageConvID = message.conversationID ||
+            (message.conversationID ||
+              (message.recvID === this.currentUserID ?
+                (message.sendID === this.currentConversation?.userID ?
+                  this.currentConversation?.conversationID : null) : null))
+
+          const currentConvID = this.currentConversation?.conversationID
+
+          console.log('当前会话ID:', currentConvID)
+          console.log('消息会话ID:', messageConvID)
+
+          // 如果是当前会话的消息，添加到消息列表
+          if (currentConvID && messageConvID === currentConvID) {
+            console.log('添加到当前会话消息列表')
+            this.AddMessage(message)
+            this.$nextTick(() => {
+              this.scrollToBottom()
+            })
+          } else {
+            console.log('消息不属于当前会话，仅更新会话列表')
+          }
+
+          // 无论是否当前会话，都触发会话更新（显示最新消息预览）
+          // 这会通过 conversationChanged 事件处理
+        })
+      })
+
+      openIMService.on('conversationChanged', (data) => {
+        if (data && data.data) {
+          data.data.forEach((conversation) => {
+            this.UpdateConversation(conversation)
+          })
+        }
+      })
     },
     removeEventListeners() {
       openIMService.off('connectSuccess')
@@ -406,25 +451,14 @@ export default {
     async handleSelectConversation(conversation) {
       this.SetCurrentConversation(conversation)
       try {
-        // 获取历史消息
-        const history = await this.GetHistoryMessages({
+        await this.GetHistoryMessages({
           conversationID: conversation.conversationID,
           startClientMsgID: '',
           count: 20,
         })
-
-        // 如果 Vuex store 没自动写入，可以手动推入
-        if (Array.isArray(history)) {
-          history.forEach(msg => {
-            if (!msg.conversationID) msg.conversationID = conversation.conversationID
-            this.AddMessage(msg)
-          })
-          console.log('历史消息:', history)
-        }
-
-        // 标记已读
-        await openIMService.markConversationMessageAsRead(conversation.conversationID)
-
+        await openIMService.markConversationMessageAsRead(
+          conversation.conversationID
+        )
         this.$nextTick(() => {
           this.scrollToBottom()
         })
@@ -433,19 +467,15 @@ export default {
       }
     },
     async handleSendMessage() {
+      console.log('当前会话:', this.currentConversation)
       if (!this.inputText.trim() || !this.currentConversation) {
         return
       }
-
-      const peerID = this.getPeerID(this.currentConversation)
-      if (!peerID) {
-        this.$message.error('当前会话缺少对方 ID')
-        return
-      }
-
       try {
         const recvID =
-          this.currentConversation.conversationType === 1 ? peerID : ''
+          this.currentConversation.conversationType === 1
+            ? this.currentConversation.userID
+            : ''
         const groupID =
           this.currentConversation.conversationType === 2
             ? this.currentConversation.groupID
@@ -463,6 +493,17 @@ export default {
         })
       } catch (error) {
         this.$message.error('发送消息失败: ' + error.message)
+      }
+    },
+    async handleRefreshConversations() {
+      this.loading = true
+      try {
+        await this.GetConversationList()
+        this.$message.success('刷新成功')
+      } catch (error) {
+        this.$message.error('刷新失败: ' + error.message)
+      } finally {
+        this.loading = false
       }
     },
     scrollToBottom() {
@@ -704,4 +745,3 @@ export default {
   justify-content: center;
 }
 </style>
-
