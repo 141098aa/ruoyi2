@@ -802,7 +802,7 @@ export default {
         pageNum: 1,
         pageSize: 999,
         status: "0", // 状态正常
-        isDefault: "0", // 非通用优惠券
+        //isDefault: "0", // 非通用优惠券
       }).then((response) => {
         this.couponOptions = response.rows;
       });
