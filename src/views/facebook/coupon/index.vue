@@ -115,6 +115,12 @@
             placeholder="请选择过期时间">
           </el-date-picker>
         </el-form-item>
+        <el-form-item label-width="0">
+          <div style="margin: 5px 0 -10px 100px; color: #909399; font-size: 12px; line-height: 1.4;">
+            <p style="margin: 0;">数字为是折扣券，最大100，100等于无折扣，10为10%折扣</p>
+            <p style="margin: 5px 0 0 0;">需付金额 = 原价 × (标签数字 ÷ 100)</p>
+          </div>
+        </el-form-item>
         <el-form-item label="标签" prop="tag">
           <el-input v-model="form.tag" placeholder="请输入标签，列如新用户扶持，50%折扣券则输入50" />
         </el-form-item>
