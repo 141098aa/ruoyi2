@@ -55,10 +55,10 @@
     <el-table v-loading="loading" :data="withdrawRecordList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="提现记录ID" align="center" prop="id" v-if="true" />
-      <el-table-column label="用户ID" align="center" prop="userId" />
       <el-table-column label="fb_ID" align="center" prop="fbId" />
       <el-table-column label="用户描述" align="center" prop="userDesc" />
       <el-table-column label="提现金额" align="center" prop="money" />
+      <el-table-column label="实际到账" align="center" prop="actualMoney" />
       <el-table-column label="银行卡/usdt" align="center" width="100">
         <template slot-scope="scope">
           <el-button type="text" @click="handleQueryBankInfo(scope.row)" :loading="scope.row.loading">查询</el-button>
