@@ -13,6 +13,10 @@ const setImToken = (token) => {
     localStorage.removeItem('imToken')
   }
 }
+// 获取 chatToken
+export const getChatToken = () => {
+  return localStorage.getItem('chatToken') || ''
+}
 
 const getOpenimUserID = () => {
   return localStorage.getItem('openimUserID') || ''
@@ -25,6 +29,15 @@ const setOpenimUserID = (userID) => {
     localStorage.removeItem('openimUserID')
   }
 }
+// 设置 chatToken
+export const setChatToken = (token) => {
+  if (token) {
+    localStorage.setItem('chatToken', token)
+  } else {
+    localStorage.removeItem('chatToken')
+  }
+}
+
 const user = {
   state: {
     token: getToken(),
@@ -34,7 +47,8 @@ const user = {
     roles: [],
     permissions: [],
     imToken: getImToken(),        // 从 localStorage 读取
-    openimUserID: getOpenimUserID()   // 从 localStorage 读取
+    openimUserID: getOpenimUserID(),   // 从 localStorage 读取
+    chatToken: getChatToken()
   },
 
   mutations: {
@@ -64,6 +78,10 @@ const user = {
     SET_OPENIM_USER_ID: (state, userID) => {
       state.openimUserID = userID
       setOpenimUserID(userID)  // 同时保存到 localStorage
+    },
+    SET_CHAT_TOKEN: (state, chatToken) => {
+      state.chatToken = chatToken
+      setChatToken(chatToken)   // 同步到 localStorage
     }
   },
 
@@ -85,6 +103,9 @@ const user = {
           }
           if (res.data.userID) {
             commit('SET_OPENIM_USER_ID', res.data.userID)
+          }
+          if (res.data.chatToken) {      // 保存 chatToken
+            commit('SET_CHAT_TOKEN', res.data.chatToken)
           }
           resolve()
         }).catch(error => {
@@ -124,6 +145,7 @@ const user = {
           commit('SET_PERMISSIONS', [])
           commit('SET_IM_TOKEN', '')      // 清除 OpenIM token
           commit('SET_OPENIM_USER_ID', '') // 清除 OpenIM userID
+          commit('SET_CHAT_TOKEN', '')   // 清除 chatToken
           removeToken()
           resolve()
         }).catch(error => {
@@ -138,6 +160,7 @@ const user = {
         commit('SET_TOKEN', '')
         commit('SET_IM_TOKEN', '')      // 清除 OpenIM token
         commit('SET_OPENIM_USER_ID', '') // 清除 OpenIM userID
+        commit('SET_CHAT_TOKEN', '')     // 清除 chatToken
         removeToken()
         resolve()
       })

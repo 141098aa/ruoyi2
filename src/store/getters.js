@@ -23,6 +23,7 @@ const getters = {
   imMessages: state => state.im.messages,
   id: state => state.user.id,
   imToken: state => state.user.imToken,
-  openimUserID: state => state.user.openimUserID
+  openimUserID: state => state.user.openimUserID,
+  chatToken: state => state.user.chatToken
 }
 export default getters
