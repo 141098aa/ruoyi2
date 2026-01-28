@@ -161,14 +161,14 @@
       <el-table-column label="信用分" align="center" prop="creditScore" />
       <el-table-column label="用户视角" align="center">
         <template #default="scope">
-          <el-space>
-            <el-link type="primary" :href="scope.row.planUrl" target="_blank">
+          <div class="user-view-links">
+            <el-link class="user-view-link" type="primary" :href="scope.row.planUrl" target="_blank">
               计划管理
             </el-link>
-            <el-link type="primary" :href="scope.row.adsUrl" target="_blank">
+            <el-link class="user-view-link" type="primary" :href="scope.row.adsUrl" target="_blank">
               广告中心
             </el-link>
-          </el-space>
+          </div>
         </template>
       </el-table-column>
       <el-table-column label="客服链接" align="center" prop="customerServiceUrl" />
@@ -237,7 +237,7 @@
           <el-radio-group v-model="form.businessStatus">
             <el-radio v-for="dict in dict.type.fb_user_business_status" :key="dict.value"
               :label="parseInt(dict.value)">{{
-              dict.label }}</el-radio>
+                dict.label }}</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="信用分" prop="creditScore">
@@ -910,6 +910,16 @@ export default {
 };
 </script>
 <style scoped>
+.user-view-link {
+  display: block;
+  margin-bottom: 4px;
+  /* 两行之间的间距，可自行调整 */
+}
+
+.user-view-link:last-child {
+  margin-bottom: 0;
+}
+
 .copy-content {
   display: flex;
   align-items: center;

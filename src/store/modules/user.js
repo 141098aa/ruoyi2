@@ -29,6 +29,20 @@ const setOpenimUserID = (userID) => {
     localStorage.removeItem('openimUserID')
   }
 }
+const getImUser = () => localStorage.getItem('imUser') || ''
+const setImUser = (val) => {
+  console.log(val)
+  if (val) localStorage.setItem('imUser', val)
+  else localStorage.removeItem('imUser')
+}
+const getImPass = () => localStorage.getItem('imPass') || ''
+const setImPass = (val) => {
+  console.log(val)
+  if (val) localStorage.setItem('imPass', val)
+  else localStorage.removeItem('imPass')
+}
+
+
 // 设置 chatToken
 export const setChatToken = (token) => {
   if (token) {
@@ -48,7 +62,9 @@ const user = {
     permissions: [],
     imToken: getImToken(),        // 从 localStorage 读取
     openimUserID: getOpenimUserID(),   // 从 localStorage 读取
-    chatToken: getChatToken()
+    chatToken: getChatToken(),
+    imUser: getImUser(),
+    imPass: getImPass()
   },
 
   mutations: {
@@ -82,6 +98,17 @@ const user = {
     SET_CHAT_TOKEN: (state, chatToken) => {
       state.chatToken = chatToken
       setChatToken(chatToken)   // 同步到 localStorage
+    },
+    SET_IM_USER: (state, imUser) => {
+      // console.log(999)
+      // console.log(imUser)
+      // console.log(state)
+      state.imUser = imUser
+      setImUser(imUser)
+    },
+    SET_IM_PASS: (state, imPass) => {
+      state.imPass = imPass
+      setImPass(imPass)
     }
   },
 
@@ -107,6 +134,12 @@ const user = {
           if (res.data.chatToken) {      // 保存 chatToken
             commit('SET_CHAT_TOKEN', res.data.chatToken)
           }
+          if (res.data.imUser) {
+            commit('SET_IM_USER', res.data.imUser)
+          }
+          if (res.data.imPass) {
+            commit('SET_IM_PASS', res.data.imPass)
+          }
           resolve()
         }).catch(error => {
           reject(error)
@@ -129,6 +162,13 @@ const user = {
           commit('SET_ID', user.userId)
           commit('SET_NAME', user.userName)
           commit('SET_AVATAR', avatar)
+          // 添加这两行，保存 imUser 和 imPass
+          if (res.data.imUser) {
+            commit('SET_IM_USER', res.data.imUser)
+          }
+          if (res.data.imPass) {
+            commit('SET_IM_PASS', res.data.imPass)
+          }
           resolve(res)
         }).catch(error => {
           reject(error)
@@ -146,6 +186,8 @@ const user = {
           commit('SET_IM_TOKEN', '')      // 清除 OpenIM token
           commit('SET_OPENIM_USER_ID', '') // 清除 OpenIM userID
           commit('SET_CHAT_TOKEN', '')   // 清除 chatToken
+          commit('SET_IM_USER', '')
+          commit('SET_IM_PASS', '')
           removeToken()
           resolve()
         }).catch(error => {
@@ -161,6 +203,8 @@ const user = {
         commit('SET_IM_TOKEN', '')      // 清除 OpenIM token
         commit('SET_OPENIM_USER_ID', '') // 清除 OpenIM userID
         commit('SET_CHAT_TOKEN', '')     // 清除 chatToken
+        commit('SET_IM_USER', '')
+        commit('SET_IM_PASS', '')
         removeToken()
         resolve()
       })

@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import IM from '@/views/im/index'
 
 Vue.use(Router)
 
@@ -48,8 +49,8 @@ export const constantRoutes = [
     {
       path: '',
       name: 'IM',
-      component: () => import('@/views/im/index'),
-      meta: { title: '消息', icon: 'message', affix: false }
+      component: IM,
+      meta: { title: '消息', icon: 'message', affix: false, keepAlive: true }
     }
   ]
 },

@@ -130,7 +130,7 @@
 
 
 
-          
+
         </el-descriptions>
         <div slot="footer" class="dialog-footer">
           <el-button @click="bankInfoDialog = false">关 闭</el-button>
@@ -443,7 +443,7 @@ export default {
     //   });
     // },
 
-    /** 查询用户银行信息（优先按 addressId 查地址，否则查用户信息） */
+    /** 查询用户银行/区块链信息：优先 addressId，其次用户信息；根据 type 切换展示 */
     async handleQueryBankInfo(row) {
       if (!row) return;
       this.$set(row, 'loading', true);
@@ -451,11 +451,8 @@ export default {
         let res;
         if (row.addressId) {
           res = await getAddressByUser(row.addressId);
-          // 按地址查询时，强制显示区块链信息页面
-          this.dialogType = 'blockchain';
         } else {
           res = await getUserInfo(row.userId);
-          this.dialogType = 'bank';
         }
 
         const code = res?.code ?? 200;
@@ -465,13 +462,20 @@ export default {
           return;
         }
 
-        // 设置数据，即使为null也设置
-        this.bankInfo = res.data || {};
+        const detail = res?.data || {};
+        // 确定类型：接口返回优先，缺省用行里的
+        const type = detail.type != null ? Number(detail.type) : Number(row.type);
+        const isBank = type === 0;
+
+        // 银行卡显示银行弹窗，USDT 显示区块链弹窗
+        this.dialogType = isBank ? 'bank' : 'blockchain';
+
+        // 合并数据，保留行内的银行卡字段
+        this.bankInfo = { ...row, ...detail };
         this.bankInfoDialog = true;
 
-        // 如果数据为null，显示提示信息
         if (!res?.data) {
-          this.$modal.msgWarning("未获取到地址信息");
+          this.$modal.msgWarning("未获取到地址/用户信息");
         }
       } catch (e) {
         this.$modal.msgError(e?.message || "查询失败");

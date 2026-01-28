@@ -2,29 +2,23 @@
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
       <el-form-item label="等级" prop="levels">
-        <el-input
-          v-model="queryParams.levels"
-          placeholder="请输入等级"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
+        <el-input v-model="queryParams.levels" placeholder="请输入等级" clearable @keyup.enter.native="handleQuery" />
       </el-form-item>
       <el-form-item label="达标金额" prop="standard">
-        <el-input
-          v-model="queryParams.standard"
-          placeholder="请输入达标金额"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
+        <el-input v-model="queryParams.standard" placeholder="请输入达标金额" clearable @keyup.enter.native="handleQuery" />
       </el-form-item>
       <el-form-item label="增幅比例" prop="rate">
-        <el-input
-          v-model="queryParams.rate"
-          placeholder="请输入增幅比例"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
+        <el-input v-model="queryParams.rate" placeholder="请输入增幅比例" clearable @keyup.enter.native="handleQuery" />
       </el-form-item>
+      <el-form-item label="描述内容,英语" prop="contentEn">
+        <el-input v-model="queryParams.contentEn" placeholder="请输入描述内容,英语" clearable
+          @keyup.enter.native="handleQuery" />
+      </el-form-item>
+      <el-form-item label="描述内容,日语" prop="contentJp">
+        <el-input v-model="queryParams.contentJp" placeholder="请输入描述内容,日语" clearable
+          @keyup.enter.native="handleQuery" />
+      </el-form-item>
+
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
         <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
@@ -33,85 +27,46 @@
 
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
-        <el-button
-          type="primary"
-          plain
-          icon="el-icon-plus"
-          size="mini"
-          @click="handleAdd"
-          v-hasPermi="['facebook:vip:add']"
-        >新增</el-button>
+        <el-button type="primary" plain icon="el-icon-plus" size="mini" @click="handleAdd"
+          v-hasPermi="['facebook:vip:add']">新增</el-button>
       </el-col>
       <el-col :span="1.5">
-        <el-button
-          type="success"
-          plain
-          icon="el-icon-edit"
-          size="mini"
-          :disabled="single"
-          @click="handleUpdate"
-          v-hasPermi="['facebook:vip:edit']"
-        >修改</el-button>
+        <el-button type="success" plain icon="el-icon-edit" size="mini" :disabled="single" @click="handleUpdate"
+          v-hasPermi="['system:vip:edit']">修改</el-button>
       </el-col>
       <el-col :span="1.5">
-        <el-button
-          type="danger"
-          plain
-          icon="el-icon-delete"
-          size="mini"
-          :disabled="multiple"
-          @click="handleDelete"
-          v-hasPermi="['facebook:vip:remove']"
-        >删除</el-button>
+        <el-button type="danger" plain icon="el-icon-delete" size="mini" :disabled="multiple" @click="handleDelete"
+          v-hasPermi="['facebook:vip:remove']">删除</el-button>
       </el-col>
       <el-col :span="1.5">
-        <el-button
-          type="warning"
-          plain
-          icon="el-icon-download"
-          size="mini"
-          @click="handleExport"
-          v-hasPermi="['facebook:vip:export']"
-        >导出</el-button>
+        <el-button type="warning" plain icon="el-icon-download" size="mini" @click="handleExport"
+          v-hasPermi="['facebook:vip:export']">导出</el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
     <el-table v-loading="loading" :data="vipList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="主键ID" align="center" prop="id" v-if="true"/>
+      <el-table-column label="主键ID" align="center" prop="id" v-if="true" />
       <el-table-column label="等级" align="center" prop="levels" />
       <el-table-column label="达标金额" align="center" prop="standard" />
       <el-table-column label="增幅比例" align="center" prop="rate" />
       <el-table-column label="描述内容" align="center" prop="content" />
-      <el-table-column label="状态" align="center" prop="status" />
+      <el-table-column label="描述内容,英语" align="center" prop="contentEn" />
+      <el-table-column label="描述内容,日语" align="center" prop="contentJp" />
+      <!-- <el-table-column label="状态" align="center" prop="status" /> -->
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-edit"
-            @click="handleUpdate(scope.row)"
-            v-hasPermi="['facebook:vip:edit']"
-          >修改</el-button>
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-delete"
-            @click="handleDelete(scope.row)"
-            v-hasPermi="['facebook:vip:remove']"
-          >删除</el-button>
+          <el-button size="mini" type="text" icon="el-icon-edit" @click="handleUpdate(scope.row)"
+            v-hasPermi="['facebook:vip:edit']">修改</el-button>
+          <el-button size="mini" type="text" icon="el-icon-delete" @click="handleDelete(scope.row)"
+            v-hasPermi="['facebook:vip:remove']">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
 
-    <pagination
-      v-show="total>0"
-      :total="total"
-      :page.sync="queryParams.pageNum"
-      :limit.sync="queryParams.pageSize"
-      @pagination="getList"
-    />
+    <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNum" :limit.sync="queryParams.pageSize"
+      @pagination="getList" />
 
     <!-- 添加或修改svip对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
@@ -126,7 +81,13 @@
           <el-input v-model="form.rate" placeholder="请输入增幅比例" />
         </el-form-item>
         <el-form-item label="描述内容">
-          <editor v-model="form.content" :min-height="192"/>
+          <editor v-model="form.content" :min-height="192" />
+        </el-form-item>
+        <el-form-item label="描述内容,英语" prop="contentEn">
+          <el-input v-model="form.contentEn" type="textarea" placeholder="请输入内容" />
+        </el-form-item>
+        <el-form-item label="描述内容,日语" prop="contentJp">
+          <el-input v-model="form.contentJp" type="textarea" placeholder="请输入内容" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -172,6 +133,8 @@ export default {
         standard: undefined,
         rate: undefined,
         content: undefined,
+        contentEn: undefined,
+        contentJp: undefined,
         status: undefined,
       },
       // 表单参数
@@ -190,8 +153,14 @@ export default {
         rate: [
           { required: true, message: "增幅比例不能为空", trigger: "blur" }
         ],
-        content: [
+  content: [
           { required: true, message: "描述内容不能为空", trigger: "blur" }
+        ],
+        contentEn: [
+          { required: true, message: "描述内容,英语不能为空", trigger: "blur" }
+        ],
+        contentJp: [
+          { required: true, message: "描述内容,日语不能为空", trigger: "blur" }
         ],
         // status: [
         //   { required: true, message: "状态不能为空", trigger: "change" }
@@ -225,6 +194,8 @@ export default {
         standard: undefined,
         rate: undefined,
         content: undefined,
+        contentEn: undefined,
+        contentJp: undefined,
         status: 0,
         delFlag: undefined,
         createBy: undefined,
@@ -247,7 +218,7 @@ export default {
     // 多选框选中数据
     handleSelectionChange(selection) {
       this.ids = selection.map(item => item.id)
-      this.single = selection.length!==1
+      this.single = selection.length !== 1
       this.multiple = !selection.length
     },
     /** 新增按钮操作 */

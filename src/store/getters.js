@@ -18,12 +18,14 @@ const getters = {
   // 添加 OpenIM 相关的 getters
   imConnectionStatus: state => state.im.connectionStatus,
   imIsLoggedIn: state => state.im.isLoggedIn,
-  imConversations: state => state.im.conversations,  
+  imConversations: state => state.im.conversations,
   imCurrentConversation: state => state.im.currentConversation,
   imMessages: state => state.im.messages,
   id: state => state.user.id,
   imToken: state => state.user.imToken,
   openimUserID: state => state.user.openimUserID,
-  chatToken: state => state.user.chatToken
+  chatToken: state => state.user.chatToken,
+  imUser: state => state.user.imUser,
+  imPass: state => state.user.imPass,
 }
 export default getters

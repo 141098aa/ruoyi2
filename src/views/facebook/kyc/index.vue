@@ -19,6 +19,9 @@
       <el-form-item label="国籍" prop="nationality">
         <el-input v-model="queryParams.nationality" placeholder="请输入国籍" clearable @keyup.enter.native="handleQuery" />
       </el-form-item>
+      <el-form-item label="手机号" prop="phone">
+        <el-input v-model="queryParams.phone" placeholder="请输入手机号" clearable @keyup.enter.native="handleQuery" />
+      </el-form-item>
       <el-form-item label="驳回原因" prop="message">
         <el-input v-model="queryParams.message" placeholder="请输入驳回原因" clearable @keyup.enter.native="handleQuery" />
       </el-form-item>
@@ -29,7 +32,7 @@
     </el-form>
 
     <el-row :gutter="10" class="mb8">
-      <el-col :span="1.5">
+      <!-- <el-col :span="1.5">
         <el-button type="primary" plain icon="el-icon-plus" size="mini" @click="handleAdd"
           v-hasPermi="['facebook:kyc:add']">新增</el-button>
       </el-col>
@@ -40,7 +43,7 @@
       <el-col :span="1.5">
         <el-button type="danger" plain icon="el-icon-delete" size="mini" :disabled="multiple" @click="handleDelete"
           v-hasPermi="['facebook:kyc:remove']">删除</el-button>
-      </el-col>
+      </el-col> -->
       <el-col :span="1.5">
         <el-button type="warning" plain icon="el-icon-download" size="mini" @click="handleExport"
           v-hasPermi="['facebook:kyc:export']">导出</el-button>
@@ -69,11 +72,12 @@
         </template>
       </el-table-column>
       <el-table-column label="国籍" align="center" prop="nationality" />
-      <el-table-column label="性别" align="center" prop="sex" />
+      <el-table-column label="手机号" align="center" prop="phone" />
+      <!-- <el-table-column label="性别" align="center" prop="sex" /> -->
       <el-table-column label="驳回原因" align="center" prop="message" />
-      <el-table-column label="状态" align="center" prop="status">
+      <el-table-column label="状态" align="center">
         <template slot-scope="scope">
-          <dict-tag :options="dict.type.fb_kyc_status" :value="scope.row.status" />
+          {{ statusLabelMap[scope.row.status] || scope.row.status }}
         </template>
       </el-table-column>
       <el-table-column label="备注" align="center" prop="remark" />
@@ -149,6 +153,9 @@
         <el-form-item label="国籍" prop="nationality">
           <el-input v-model="form.nationality" placeholder="请输入国籍" />
         </el-form-item>
+        <el-form-item label="手机号" prop="phone">
+          <el-input v-model="form.phone" placeholder="请输入手机号" />
+        </el-form-item>
         <el-form-item label="驳回原因" prop="message">
           <el-input v-model="form.message" placeholder="请输入驳回原因" />
         </el-form-item>
@@ -209,9 +216,15 @@ export default {
         idImg1: undefined,
         idImg2: undefined,
         nationality: undefined,
-        sex: undefined,
+        phone: undefined,
+        //sex: undefined,
         message: undefined,
         status: undefined,
+      },
+      statusLabelMap: {
+        0: '待审核',
+        1: '已通过',
+        '-1': '已拒绝'
       },
       // statusOptions: [
       //   { label: '提交待审核', value: 0, raw: { listClass: 'default', cssClass: '' } },
@@ -243,9 +256,12 @@ export default {
         nationality: [
           { required: true, message: "国籍不能为空", trigger: "blur" }
         ],
-        sex: [
-          { required: true, message: "性别不能为空", trigger: "change" }
+        phone: [
+          { required: false, message: "手机号不能为空", trigger: "blur" }
         ],
+        // sex: [
+        //   { required: true, message: "性别不能为空", trigger: "change" }
+        // ],
         // message: [
         //   { required: true, message: "驳回原因不能为空", trigger: "blur" }
         // ],
@@ -311,7 +327,8 @@ export default {
         idImg1: undefined,
         idImg2: undefined,
         nationality: undefined,
-        sex: undefined,
+        phone: undefined,
+        //sex: undefined,
         message: undefined,
         status: 0, // 默认设置为提交待审核
         delFlag: undefined,

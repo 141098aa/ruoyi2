@@ -1,6 +1,10 @@
-<template>
+<!-- <template>
   <div class="full-page">
-    <iframe :src="chatUrl" class="chat-iframe" frameborder="0"></iframe>
+    <div v-if="loading" class="loading-mask">
+      <i class="el-icon-loading"></i>
+      <span>消息页面加载中...</span>
+    </div>
+    <iframe v-show="!loading" :src="chatUrl" class="chat-iframe" frameborder="0" @load="loading = false" />
   </div>
 </template>
 
@@ -9,28 +13,36 @@ import { mapGetters } from 'vuex'
 
 export default {
   name: 'IM',
-
+  data() {
+    return { loading: true };
+  },
   computed: {
     ...mapGetters([
-      "openimUserID",
-      "imToken",
-      "chatToken"
+      // "openimUserID",
+      // "imToken",
+      // "chatToken",
+      "imUser",
+      "imPass"
     ]),
 
     chatUrl() {
       const base = "https://chatvip.pipoone.com/#/login"
-      console.log(1111111111)
-      console.log(this.chatToken)
-      console.log(this.openimUserID)
-      console.log(this.imToken)
+
       return (
         base +
-        "?userID=" + encodeURIComponent(this.openimUserID) +
-        "&chatToken=" + encodeURIComponent(this.chatToken) +
-        "&imToken=" + encodeURIComponent(this.imToken)
-      )
-    }
-  }
+        // "?userID=" + encodeURIComponent(this.openimUserID) +
+        // "&chatToken=" + encodeURIComponent(this.chatToken) +
+        // "&imToken=" + encodeURIComponent(this.imToken) +
+        "?imUser=" + encodeURIComponent(this.imUser) +
+        "&imPass=" + encodeURIComponent(this.imPass)
+      );
+    },
+  },
+  methods: {
+    handleLoad() {
+      this.loading = false;
+    },
+  },
 }
 </script>
 
@@ -52,4 +64,17 @@ export default {
   border: none;
   display: block;
 }
-</style>
+
+.loading-mask {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* 垂直居中 */
+  background: #fff;
+  font-size: 16px;
+  color: #666;
+}
+</style> -->

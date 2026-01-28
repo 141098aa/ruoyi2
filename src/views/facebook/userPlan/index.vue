@@ -2,30 +2,15 @@
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
       <el-form-item label="订单号" prop="orderNo">
-        <el-input
-          v-model="queryParams.orderNo"
-          placeholder="请输入订单号"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
+        <el-input v-model="queryParams.orderNo" placeholder="请输入订单号" clearable @keyup.enter.native="handleQuery" />
       </el-form-item>
       <el-form-item label="官方派单" prop="isOfficial">
         <el-select v-model="queryParams.isOfficial" placeholder="请选择官方派单" clearable>
-          <el-option
-            v-for="dict in dict.type.sys_yes_no"
-            :key="dict.value"
-            :label="dict.label"
-            :value="dict.value"
-          />
+          <el-option v-for="dict in dict.type.sys_yes_no" :key="dict.value" :label="dict.label" :value="dict.value" />
         </el-select>
       </el-form-item>
       <el-form-item label="用户ID" prop="userId">
-        <el-input
-          v-model="queryParams.userId"
-          placeholder="请输入用户ID"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
+        <el-input v-model="queryParams.userId" placeholder="请输入用户ID" clearable @keyup.enter.native="handleQuery" />
       </el-form-item>
       <!-- <el-form-item label="利润" prop="grossProfit">
         <el-input
@@ -37,12 +22,8 @@
       </el-form-item> -->
       <el-form-item label="状态" prop="status">
         <el-select v-model="queryParams.status" placeholder="请选择状态" clearable>
-          <el-option
-            v-for="dict in dict.type.fb_user_plan_status"
-            :key="dict.value"
-            :label="dict.label"
-            :value="dict.value"
-          />
+          <el-option v-for="dict in dict.type.fb_user_plan_status" :key="dict.value" :label="dict.label"
+            :value="dict.value" />
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -63,57 +44,30 @@
         >新增</el-button>
       </el-col> -->
       <el-col :span="1.5">
-        <el-button
-          type="success"
-          plain
-          icon="el-icon-edit"
-          size="mini"
-          :disabled="single"
-          @click="handleUpdate"
-          v-hasPermi="['facebook:userPlan:edit']"
-        >修改</el-button>
+        <el-button type="success" plain icon="el-icon-edit" size="mini" :disabled="single" @click="handleUpdate"
+          v-hasPermi="['facebook:userPlan:edit']">修改</el-button>
       </el-col>
       <el-col :span="1.5">
-        <el-button
-          type="danger"
-          plain
-          icon="el-icon-delete"
-          size="mini"
-          :disabled="multiple"
-          @click="handleDelete"
-          v-hasPermi="['facebook:userPlan:remove']"
-        >删除</el-button>
+        <el-button type="danger" plain icon="el-icon-delete" size="mini" :disabled="multiple" @click="handleDelete"
+          v-hasPermi="['facebook:userPlan:remove']">删除</el-button>
       </el-col>
       <el-col :span="1.5">
-        <el-button
-          type="warning"
-          plain
-          icon="el-icon-download"
-          size="mini"
-          @click="handleExport"
-          v-hasPermi="['facebook:userPlan:export']"
-        >导出</el-button>
+        <el-button type="warning" plain icon="el-icon-download" size="mini" @click="handleExport"
+          v-hasPermi="['facebook:userPlan:export']">导出</el-button>
       </el-col>
       <!-- 添加提前结算按钮 -->
       <el-col :span="1.5">
-        <el-button
-          type="info"
-          plain
-          icon="el-icon-money"
-          size="mini"
-          :disabled="multiple"
-          @click="handleEnterSettle"
-          v-hasPermi="['facebook:userPlan:settle1']"
-        >提前结算</el-button>
+        <el-button type="info" plain icon="el-icon-money" size="mini" :disabled="multiple" @click="handleEnterSettle"
+          v-hasPermi="['facebook:userPlan:settle1']">提前结算</el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
     <el-table v-loading="loading" :data="userPlanList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="ID" align="center" prop="id" v-if="true"/>
+      <el-table-column label="ID" align="center" prop="id" v-if="true" />
       <el-table-column label="订单号" align="center" prop="orderNo" />
-      
+
       <el-table-column label="用户ID" align="center" prop="userId" />
       <el-table-column label="简称" align="center" prop="fbNickname" />
       <el-table-column label="计划ID" align="center" prop="planId" />
@@ -123,7 +77,7 @@
       <el-table-column label="已投放金额" align="center" prop="putAmount" />
       <el-table-column label="优惠券" align="center" prop="isCoupons">
         <template slot-scope="scope">
-          <dict-tag :options="dict.type.fb_coupon_status" :value="scope.row.isCoupons"/>
+          <dict-tag :options="dict.type.fb_coupon_status" :value="scope.row.isCoupons" />
         </template>
       </el-table-column>
       <el-table-column label="投放进度" align="center" prop="putProgress" />
@@ -135,16 +89,21 @@
       <el-table-column label="利润" align="center" prop="grossProfit" />
       <el-table-column label="官方派单" align="center" prop="isOfficial">
         <template slot-scope="scope">
-          <dict-tag :options="dict.type.sys_yes_no" :value="scope.row.isOfficial"/>
+          <dict-tag :options="dict.type.sys_yes_no" :value="scope.row.isOfficial" />
         </template>
       </el-table-column>
       <el-table-column label="状态" align="center" prop="status">
         <template slot-scope="scope">
-          <dict-tag :options="dict.type.fb_user_plan_status" :value="scope.row.status"/>
+          <dict-tag :options="dict.type.fb_user_plan_status" :value="scope.row.status" />
         </template>
       </el-table-column>
-      <el-table-column label="派发时间" align="center" prop="distriTime" width="180" >
-      <template slot-scope="scope">
+      <el-table-column label="自动结算" align="center" prop="autoDealwith">
+        <template slot-scope="scope">
+          <dict-tag :options="dict.type.fb_auto_settle" :value="scope.row.autoDealwith == 1 ? 1 : 0" />
+        </template>
+      </el-table-column>
+      <el-table-column label="派发时间" align="center" prop="distriTime" width="180">
+        <template slot-scope="scope">
           <span>{{ parseTime(scope.row.distriTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
@@ -155,42 +114,22 @@
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-edit"
-            @click="handleUpdate(scope.row)"
-            v-hasPermi="['facebook:userPlan:edit']"
-          >修改</el-button>
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-delete"
-            @click="handleDelete(scope.row)"
-            v-hasPermi="['facebook:userPlan:remove']"
-          >删除</el-button>
+          <el-button size="mini" type="text" icon="el-icon-edit" @click="handleUpdate(scope.row)"
+            v-hasPermi="['facebook:userPlan:edit']">修改</el-button>
+          <el-button size="mini" type="text" icon="el-icon-delete" @click="handleDelete(scope.row)"
+            v-hasPermi="['facebook:userPlan:remove']">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
 
-    <pagination
-      v-show="total>0"
-      :total="total"
-      :page.sync="queryParams.pageNum"
-      :limit.sync="queryParams.pageSize"
-      @pagination="getList"
-    />
+    <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNum" :limit.sync="queryParams.pageSize"
+      @pagination="getList" />
 
     <!-- 添加或修改用户计划列表对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="120px">
-        <el-alert
-    title="提示:客户未付款也可修改状态，请注意核实好再修改！！"
-    type="warning"
-    :closable="false"
-    show-icon
-    style="margin-top: 5px;"
-  />
+        <el-alert title="提示:客户未付款也可修改状态，请注意核实好再修改！！" type="warning" :closable="false" show-icon
+          style="margin-top: 5px;" />
         <!-- <el-form-item label="订单号" prop="orderNo">
           <el-input v-model="form.orderNo" placeholder="请输入订单号" />
         </el-form-item>
@@ -259,17 +198,20 @@
         </el-form-item> -->
         <el-form-item label="状态" prop="status">
           <el-radio-group v-model="form.status">
-            <el-radio
-              v-for="dict in dict.type.fb_user_plan_status"
-              :key="dict.value"
-              :label="dict.value"
-            >{{dict.label}}</el-radio>
+            <el-radio v-for="dict in dict.type.fb_user_plan_status" :key="dict.value" :label="dict.value">{{ dict.label
+              }}</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="投放失败原因" prop="reason">
           <el-input v-model="form.reason" type="textarea" placeholder="请输入内容" />
         </el-form-item>
-         
+        <el-form-item label="自动结算" prop="autoDealwith">
+          <el-radio-group v-model="form.autoDealwith">
+            <el-radio v-for="dict in dict.type.fb_auto_settle" :key="dict.value" :label="dict.value">{{ dict.label
+              }}</el-radio>
+          </el-radio-group>
+        </el-form-item>
+
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button :loading="buttonLoading" type="primary" @click="submitForm">确 定</el-button>
@@ -284,7 +226,7 @@ import { listUserPlan, getUserPlan, delUserPlan, addUserPlan, updateUserPlan, en
 
 export default {
   name: "UserPlan",
-  dicts: ['fb_coupon_status', 'sys_yes_no', 'fb_user_plan_status'],
+  dicts: ['fb_coupon_status', 'sys_yes_no', 'fb_user_plan_status', 'fb_auto_settle'],
   data() {
     return {
       // 按钮loading
@@ -342,6 +284,9 @@ export default {
         spendTime: [
           { required: true, message: "消耗时间不能为空", trigger: "blur" }
         ],
+        autoDealwith: [
+          { required: true, message: "请选择是否自动结算", trigger: "change" }
+        ]
       }
     };
   },
@@ -396,7 +341,8 @@ export default {
         createBy: undefined,
         createTime: undefined,
         updateBy: undefined,
-        updateTime: undefined
+        updateTime: undefined,
+        autoDealwith: '0', // 0 关 1 开
       };
       this.resetForm("form");
     },
@@ -413,7 +359,7 @@ export default {
     // 多选框选中数据
     handleSelectionChange(selection) {
       this.ids = selection.map(item => item.id)
-      this.single = selection.length!==1
+      this.single = selection.length !== 1
       this.multiple = !selection.length
     },
     /** 新增按钮操作 */
@@ -430,6 +376,7 @@ export default {
       getUserPlan(id).then(response => {
         this.loading = false;
         this.form = response.data;
+        this.form.autoDealwith = this.form.autoDealwith == null ? '0' : String(this.form.autoDealwith);
         this.open = true;
         this.title = "修改用户计划列表";
       });
@@ -486,7 +433,7 @@ export default {
         this.$modal.msgError("请选择要提前结算的数据");
         return;
       }
-      
+
       this.$modal.confirm('是否确认对选中的 ' + this.ids.length + ' 条数据进行提前结算？').then(() => {
         this.loading = true;
         return enterSettleBatch(this.ids);
